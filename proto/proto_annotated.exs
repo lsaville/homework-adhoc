@@ -1,5 +1,19 @@
 require IEx
 
+# I've got the thing organized as a flow from the file to the result. I pulled
+# this example from the job process at Ad-Hoc, my friend was going through the
+# process and actually just got a job there. Anyway I saw this and played with
+# it a little in Ruby just as a wow-look-at-the-funny-strings/characters kind
+# of thing and realized that Elixir's binary pattern matching is made from
+# problems just like this!
+#
+# I could see an extension to this version being one where Streams were
+# utilized. The prompt specifically says the file is relatively short, but
+# a relatively small change in requirements could cause the memory space of
+# this implementation to choke under a larger burden.
+#
+# Oh also, I neglected error handling... wah wah
+
 defmodule Proto do
   def main do
     { _status, binary } = File.read('txnlog.dat')
@@ -8,6 +22,7 @@ defmodule Proto do
   end
 
   def handleHeader(binary) do
+    # Maybe there's a special formatting that I'm not aware of for a big match?
     << magic_string :: binary-size(4), version :: integer, num_records :: big-integer-32, rest :: binary >> = binary
 
     handleRecords(rest, %{
@@ -22,6 +37,7 @@ defmodule Proto do
     })
   end
 
+  # I feel like maybe this portion would be better as a case?
   def handleRecords(<< 0, rest :: binary >>, acc) do
     handleFourField("Debit", rest, acc)
   end
@@ -48,8 +64,20 @@ defmodule Proto do
       amount: amount
     }
 
+    # This felt dirty, I suppose it depends on the audience. As an alternative
+    # I could see matching on the "Debit" or "Credit" and passing an extra arg
+    # as the key...
+    #
+    # Another thing that kinda put me on edge when I was figuring out how to
+    # update a Map, what if I didn't want a default in case the lookup failed?
+    # I suppose you provide the least harmful default. There is also the
+    # possibility that my problem is one of mindset, that I'm too used to the
+    # wild-west and the restraints on this v-small system would be such that
+    # I'd never be making new entries just for the lolz on accident.
     type_key = String.to_atom("#{String.downcase(type)}_total")
 
+    # Is there a more elegant way to alter acc? Maybe do the pipelines in the
+    # param list of handleRecords?
     acc = acc 
           |> Map.update(:records, [], &[ record | &1 ])
           |> Map.update(type_key, 0, &( &1 + amount ))

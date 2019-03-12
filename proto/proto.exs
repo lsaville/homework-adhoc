@@ -4,13 +4,13 @@ defmodule Proto do
   def main do
     { _status, binary } = File.read('txnlog.dat')
 
-    handleHeader(binary)
+    handle_header(binary)
   end
 
-  def handleHeader(binary) do
+  def handle_header(binary) do
     << magic_string :: binary-size(4), version :: integer, num_records :: big-integer-32, rest :: binary >> = binary
 
-    handleRecords(rest, %{
+    handle_records(rest, %{
       magic_string: magic_string,
       version: version,
       num_records: num_records,
@@ -22,23 +22,23 @@ defmodule Proto do
     })
   end
 
-  def handleRecords(<< 0, rest :: binary >>, acc) do
-    handleFourField("Debit", rest, acc)
+  def handle_records(<< 0, rest :: binary >>, acc) do
+    handle_four_field("Debit", rest, acc)
   end
-  def handleRecords(<< 1, rest :: binary >>, acc) do
-    handleFourField("Credit", rest, acc)
+  def handle_records(<< 1, rest :: binary >>, acc) do
+    handle_four_field("Credit", rest, acc)
   end
-  def handleRecords(<< 2, rest :: binary >>, acc) do
-    handleThreeField("StartAutopay", rest, acc)
+  def handle_records(<< 2, rest :: binary >>, acc) do
+    handle_three_field("StartAutopay", rest, acc)
   end
-  def handleRecords(<< 3, rest :: binary >>, acc) do
-    handleThreeField("EndAutopay", rest, acc)
+  def handle_records(<< 3, rest :: binary >>, acc) do
+    handle_three_field("EndAutopay", rest, acc)
   end
-  def handleRecords("", acc) do
-    displayResults(acc)
+  def handle_records("", acc) do
+    display_results(acc)
   end
 
-  def handleFourField(type, binary, acc) do
+  def handle_four_field(type, binary, acc) do
     << timestamp :: big-integer-32, user_id :: big-integer-64, amount :: float, rest :: binary >> = binary
 
     record = %{
@@ -54,10 +54,10 @@ defmodule Proto do
           |> Map.update(:records, [], &[ record | &1 ])
           |> Map.update(type_key, 0, &( &1 + amount ))
 
-    handleRecords(rest, acc)
+    handle_records(rest, acc)
   end
 
-  def handleThreeField(type, binary, acc) do
+  def handle_three_field(type, binary, acc) do
     << timestamp :: big-integer-32, user_id :: big-integer-64, rest :: binary >> = binary
 
     record = %{
@@ -72,10 +72,10 @@ defmodule Proto do
           |> Map.update(:records, [], &[ record | &1 ])
           |> Map.update(type_key, 0, &( &1 + 1 ))
 
-    handleRecords(rest, acc)
+    handle_records(rest, acc)
   end
 
-  def displayResults(acc) do
+  def display_results(acc) do
     special_user_record = Enum.find(acc.records, &( &1.user_id == 2456938384156277127 ))
     actual_number_records = length(acc.records)
 

@@ -50,9 +50,10 @@ defmodule Proto do
 
     type_key = String.to_atom("#{String.downcase(type)}_total")
 
-    acc = acc 
-          |> Map.update(:records, [], &[ record | &1 ])
-          |> Map.update(type_key, 0, &( &1 + amount ))
+    acc = %{
+      acc | :records => [record | acc.records],
+      type_key => (acc[type_key] + amount)
+    }
 
     handle_records(rest, acc)
   end
@@ -68,9 +69,10 @@ defmodule Proto do
 
     type_key = String.to_atom("#{String.downcase(type)}_count")
 
-    acc = acc 
-          |> Map.update(:records, [], &[ record | &1 ])
-          |> Map.update(type_key, 0, &( &1 + 1 ))
+    acc = %{
+      acc | :records => [record | acc.records],
+      type_key => (acc[type_key] + 1)
+    }
 
     handle_records(rest, acc)
   end

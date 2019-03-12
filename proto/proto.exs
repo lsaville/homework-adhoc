@@ -79,15 +79,16 @@ defmodule Proto do
     special_user_record = Enum.find(acc.records, &( &1.user_id == 2456938384156277127 ))
     actual_number_records = length(acc.records)
 
-    IO.puts "============ Results ============="
-    IO.puts "Number of records:        #{acc.num_records}"
-    IO.puts "Actual number of records: #{actual_number_records}"
-    IO.puts "Magic string:             #{acc.magic_string}"
-    IO.puts "Version:                  #{acc.version}"
-    IO.puts "Debit total:              #{acc.debit_total}"
-    IO.puts "Credit total:             #{acc.credit_total}"
-    IO.puts "Autopay starts:           #{acc.startautopay_count}"
-    IO.puts "Autopay end:              #{acc.endautopay_count}"
-    IO.puts "Special user balance:     #{special_user_record.amount}"
+    IO.puts("""
+      Number of records:        #{acc.num_records}
+      Actual number of records: #{actual_number_records}
+      Magic string:             #{acc.magic_string}
+      Version:                  #{acc.version}
+      Debit total:              #{acc.debit_total}
+      Credit total:             #{acc.credit_total}
+      Autopay starts:           #{acc.startautopay_count}
+      Autopay end:              #{acc.endautopay_count}
+      Special user balance:     #{special_user_record.amount}
+    """)
   end
 end

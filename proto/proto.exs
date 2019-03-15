@@ -55,6 +55,23 @@ defmodule Proto do
     #display_results(acc)
   end
 
+  def handle_records(records, acc) do
+    << type :: binary-size(1), rest :: binary >> = records
+
+    case type do
+      0 ->
+        handle_four_field("Debit", rest, acc)
+      1 ->
+        handle_four_field("Credit", rest, acc)
+      2 ->
+        handle_three_field("StartAutopay", rest, acc)
+      3 ->
+        handle_three_field("EndAutopay", rest, acc)
+      "" ->
+        display_results(acc)
+    end
+  end
+
   def handle_four_field(type, binary, acc) do
     << timestamp :: big-integer-32, user_id :: big-integer-64, amount :: float, rest :: binary >> = binary
 

@@ -1,25 +1,41 @@
 require IEx
 
 defmodule Proto do
-  def main do
-    { _status, binary } = File.read('txnlog.dat')
 
-    handle_header(binary)
+  def main do
+    with {:ok, binary}         <- File.read('txnlog.dat'),
+         {:ok, {acc, records}} <- handle_header(binary),
+         {:ok, acc}            <- handle_records(records, acc) do
+         display_results(acc)
+    else
+      {:error, file_read_error} ->
+        IO.puts("File read error: #{file_read_error}")
+      {:error, header_error} ->
+        IO.puts("Header error: #{header_error}")
+      {:error, record_error} ->
+        IO.puts("Record error: #{record_error}")
+    end
   end
 
   def handle_header(binary) do
     << magic_string :: binary-size(4), version :: integer, num_records :: big-integer-32, rest :: binary >> = binary
 
-    handle_records(rest, %{
-      magic_string: magic_string,
-      version: version,
-      num_records: num_records,
-      records: [],
-      debit_total: 0,
-      credit_total: 0,
-      startautopay_count: 0,
-      endautopay_count: 0,
-    })
+    {
+      :ok,
+      {
+        %{
+          credit_total: 0,
+          debit_total: 0,
+          endautopay_count: 0,
+          magic_string: magic_string,
+          num_records: num_records,
+          records: [],
+          startautopay_count: 0,
+          version: version,
+        },
+        rest
+      }
+    }
   end
 
   def handle_records(<< 0, rest :: binary >>, acc) do
@@ -35,7 +51,8 @@ defmodule Proto do
     handle_three_field("EndAutopay", rest, acc)
   end
   def handle_records("", acc) do
-    display_results(acc)
+    {:ok, acc}
+    #display_results(acc)
   end
 
   def handle_four_field(type, binary, acc) do

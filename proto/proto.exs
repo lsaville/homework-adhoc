@@ -2,7 +2,7 @@ require IEx
 
 defmodule Proto do
 
-  def main do
+  def digest do
     with {:ok, binary}         <- File.read('txnlog.dat'),
          {:ok, {acc, records}} <- handle_header(binary),
          {:ok, acc}            <- handle_records(records, acc) do

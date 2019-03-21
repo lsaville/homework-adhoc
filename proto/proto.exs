@@ -52,7 +52,6 @@ defmodule Proto do
   end
   def handle_records("", acc) do
     {:ok, acc}
-    #display_results(acc)
   end
 
   def handle_records(records, acc) do

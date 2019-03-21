@@ -115,6 +115,7 @@ defmodule Proto do
     actual_number_records = length(acc.records)
 
     IO.puts("""
+      =====================================================
       Number of records:        #{acc.num_records}
       Actual number of records: #{actual_number_records}
       Magic string:             #{acc.magic_string}
@@ -124,6 +125,7 @@ defmodule Proto do
       Autopay starts:           #{acc.startautopay_count}
       Autopay end:              #{acc.endautopay_count}
       Special user balance:     #{special_user_record.amount}
+      =====================================================
     """)
   end
 end
